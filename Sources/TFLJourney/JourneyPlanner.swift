@@ -8,6 +8,7 @@
 import Foundation
 import OpenAPIRuntime
 
+/// <#Description#>
 public class JourneyPlanner {
   
   public typealias Journey = Operations.Journey_JourneyResultsByPathFromPathToQueryViaQueryNationalSearchQueryDateQu
@@ -21,10 +22,17 @@ public class JourneyPlanner {
   var transport: ClientTransport
   var client: Client
   
+  /// <#Description#>
   public struct PointOfInterest: CustomStringConvertible {
+    /// <#Description#>
     public var latitude: Double
+    /// <#Description#>
     public var longitude: Double
     
+    /// <#Description#>
+    /// - Parameters:
+    ///   - latitude: <#latitude description#>
+    ///   - longitude: <#longitude description#>
     public init(latitude: Double, longitude: Double) {
       self.latitude = latitude
       self.longitude = longitude
@@ -41,6 +49,12 @@ public class JourneyPlanner {
     client = try Client(serverURL: Servers.server1(), configuration: configuration, transport: transport)
   }
   
+  /// <#Description#>
+  /// - Parameters:
+  ///   - from: <#from description#>
+  ///   - to: <#to description#>
+  ///   - via: <#via description#>
+  /// - Returns: <#description#>
   public func getJourneyPlan(from: PointOfInterest, to: PointOfInterest, via: PointOfInterest? = nil) async throws -> JourneyOutput {
     let path = Path(from: from.description, to: to.description)
     let query = Query(via: via?.description)
@@ -49,8 +63,9 @@ public class JourneyPlanner {
     return try await client.Journey_JourneyResultsByPathFromPathToQueryViaQueryNationalSearchQueryDateQu(input)
   }
   
+  /// <#Description#>
+  /// - Returns: <#description#>
   public func getModes() async throws -> ModesOutput {
-    
     return try await client.Journey_Meta()
   }
 }

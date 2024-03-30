@@ -18,15 +18,6 @@ final class JourneyPlannerTests: XCTestCase {
     static let claphamJunction = JourneyPlanner.PointOfInterest(latitude: 51.4652, longitude: -0.1708)
   }
   
-  override func setUpWithError() throws {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-  }
-  
-  override func tearDownWithError() throws {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-  }
-  
-  
   func testDateTranscoder() throws {
     
     let transcoder = TFLDateTranscoder()
