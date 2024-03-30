@@ -14,10 +14,26 @@ public class JourneyPlanner {
   typealias Input = Journey.Input
   typealias Query = Input.Query
   typealias Path = Input.Path
-  public typealias Output = Journey.Output
+  public typealias JourneyOutput = Journey.Output
+  public typealias Modes = Operations.Journey_Meta
+  public typealias ModesOutput = Modes.Output
   
   var transport: ClientTransport
   var client: Client
+  
+  public struct PointOfInterest: CustomStringConvertible {
+    public var latitude: Double
+    public var longitude: Double
+    
+    public init(latitude: Double, longitude: Double) {
+      self.latitude = latitude
+      self.longitude = longitude
+    }
+    
+    public var description: String {
+      "\(latitude),\(longitude)"
+    }
+  }
   
   public init(transport: ClientTransport) throws {
     self.transport = transport
@@ -25,11 +41,16 @@ public class JourneyPlanner {
     client = try Client(serverURL: Servers.server1(), configuration: configuration, transport: transport)
   }
   
-  public func planJourney(from: String, to: String, via: String? = nil) async throws -> Output {
-    let path = Path(from: from, to: to)
-    let query = Query(via: via)
+  public func getJourneyPlan(from: PointOfInterest, to: PointOfInterest, via: PointOfInterest? = nil) async throws -> JourneyOutput {
+    let path = Path(from: from.description, to: to.description)
+    let query = Query(via: via?.description)
     let input: Input = Input(path: path, query: query)
     
     return try await client.Journey_JourneyResultsByPathFromPathToQueryViaQueryNationalSearchQueryDateQu(input)
+  }
+  
+  public func getModes() async throws -> ModesOutput {
+    
+    return try await client.Journey_Meta()
   }
 }
