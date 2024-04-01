@@ -8,7 +8,9 @@
 import Foundation
 import OpenAPIRuntime
 
-/// <#Description#>
+/// A simple wrapper for the TFL Journey Planner API.
+/// See https://api.tfl.gov.uk/swagger/ui/index.html?url=/swagger/docs/v1#!/Journey/Journey_Meta and
+/// https://api.tfl.gov.uk/swagger/ui/index.html?url=/swagger/docs/v1#!/Journey/Journey_JourneyResults for documentation.
 public class JourneyPlanner {
   
   public typealias Journey = Operations.Journey_JourneyResultsByPathFromPathToQueryViaQueryNationalSearchQueryDateQu
@@ -22,17 +24,15 @@ public class JourneyPlanner {
   var transport: ClientTransport
   var client: Client
   
-  /// <#Description#>
+  /// A structure representing a journey point.
   public struct PointOfInterest: CustomStringConvertible {
-    /// <#Description#>
     public var latitude: Double
-    /// <#Description#>
     public var longitude: Double
     
-    /// <#Description#>
+    /// Initialize a new journey point.
     /// - Parameters:
-    ///   - latitude: <#latitude description#>
-    ///   - longitude: <#longitude description#>
+    ///   - latitude: the latitude, in degrees.
+    ///   - longitude: the longitude in degrees.
     public init(latitude: Double, longitude: Double) {
       self.latitude = latitude
       self.longitude = longitude
@@ -49,22 +49,34 @@ public class JourneyPlanner {
     client = try Client(serverURL: Servers.server1(), configuration: configuration, transport: transport)
   }
   
-  /// <#Description#>
+  /// Get a journey plan for the specified points and optional deparure time.
   /// - Parameters:
-  ///   - from: <#from description#>
-  ///   - to: <#to description#>
-  ///   - via: <#via description#>
-  /// - Returns: <#description#>
-  public func getJourneyPlan(from: PointOfInterest, to: PointOfInterest, via: PointOfInterest? = nil) async throws -> JourneyOutput {
+  ///   - from: the starting point of the journey.
+  ///   - to: the destination of the journey.
+  ///   - via: an optional point to travel through.
+  ///   - leavingAt: the time today at which to leave. Note that the date part is ignored.
+  /// - Returns: A set of journey plans for the recommended routes.
+  public func getJourneyPlan(from: PointOfInterest, to: PointOfInterest, via: PointOfInterest? = nil, leavingAt: Date? = nil) async throws -> JourneyOutput {
     let path = Path(from: from.description, to: to.description)
-    let query = Query(via: via?.description)
+    var time: String?
+    var timeIsPayload: Query.timeIsPayload?
+    if let leavingAt {
+      let timeFormatter = DateFormatter()
+      timeFormatter.locale = Locale(identifier: "en_US_POSIX")
+      timeFormatter.timeZone = TimeZone(abbreviation: "UTC")
+      timeFormatter.dateFormat = "HHmm"
+      
+      time = timeFormatter.string(from: leavingAt)
+      timeIsPayload = .Departing
+    }
+    let query = Query(via: via?.description, time: time, timeIs: timeIsPayload)
     let input: Input = Input(path: path, query: query)
     
     return try await client.Journey_JourneyResultsByPathFromPathToQueryViaQueryNationalSearchQueryDateQu(input)
   }
   
-  /// <#Description#>
-  /// - Returns: <#description#>
+  /// Get the available transport modes such as walking, national rail, tube etc.
+  /// - Returns: A list of available modes.
   public func getModes() async throws -> ModesOutput {
     return try await client.Journey_Meta()
   }

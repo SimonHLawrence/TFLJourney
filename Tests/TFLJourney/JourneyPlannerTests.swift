@@ -21,7 +21,14 @@ final class JourneyPlannerTests: XCTestCase {
   func testDateTranscoder() throws {
     
     let transcoder = TFLDateTranscoder()
-    XCTAssertNotNil(try? transcoder.decode("2024-03-29T14:51:32"))
+    let decodedDate = try? transcoder.decode("2024-03-29T14:51:32")
+    XCTAssertNotNil(decodedDate)
+    if let decodedDate {
+      if let encodedDate = try? transcoder.encode(decodedDate) {
+        let roundTrippedDate = try transcoder.decode(encodedDate)
+        XCTAssertEqual(decodedDate, roundTrippedDate)
+      }
+    }
     XCTAssertNotNil(try? transcoder.decode("2024-03-29T14:51:32.005Z"))
   }
   
@@ -31,7 +38,8 @@ final class JourneyPlannerTests: XCTestCase {
     
     let output = try await journeyPlanner.getJourneyPlan(from: WellKnownCoordinates.claphamJunction,
                                                          to: WellKnownCoordinates.londonVictoria,
-                                                         via: WellKnownCoordinates.londonWaterloo)
+                                                         via: WellKnownCoordinates.londonWaterloo,
+                                                         leavingAt: Date.now)
     
     XCTAssertNoThrow(try output.ok)
   }

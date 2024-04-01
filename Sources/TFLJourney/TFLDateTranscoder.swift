@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  TFLDateTranscoder.swift
+//  TFLJourney
 //
 //  Created by Simon Lawrence on 29/03/2024.
 //
@@ -8,6 +8,7 @@
 import Foundation
 import OpenAPIRuntime
 
+/// Provides a date transcoder that will permit the multiple formats used by TFL (ISO8601 and dates with no timezone but fractional seconds are freely mixed).
 public struct TFLDateTranscoder: DateTranscoder, @unchecked Sendable {
   
   /// The lock protecting the formatter.
@@ -17,9 +18,7 @@ public struct TFLDateTranscoder: DateTranscoder, @unchecked Sendable {
   private let locked_formatter: DateFormatter
   private let fallback_formatter: ISO8601DateFormatter
   
-  /// Creates a new transcoder with the provided options.
-  /// - Parameter options: Options to override the default ones. If you provide nil here, the default options
-  ///   are used.
+  /// Creates a new transcoder.
   public init() {
     let nonISO8601Formatter = DateFormatter()
     nonISO8601Formatter.locale = Locale(identifier: "en_US_POSIX")
